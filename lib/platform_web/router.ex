@@ -27,5 +27,6 @@ defmodule PlatformWeb.Router do
     pipe_through :api
     resources "/games", GameController, except: [:new, :edit]
     resources "/gameplays", GameplayController, except: [:new, :edit]
+    resources "/players", PlayerApiController, except: [:new, :edit]
   end
 end
