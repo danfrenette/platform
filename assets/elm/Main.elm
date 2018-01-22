@@ -2,6 +2,10 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
+
+
+-- Main
 
 
 main : Program Never Model Msg
@@ -12,6 +16,10 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+
+
+
+-- Model
 
 
 init : ( Model, Cmd Msg )
@@ -46,6 +54,10 @@ type Msg
     | HideGamesList
 
 
+
+-- Update
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -56,18 +68,29 @@ update msg model =
             ( { model | displayGamesList = False }, Cmd.none )
 
 
+
+-- Subscriptions
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+
+-- View
 
 
 view : Model -> Html Msg
 view model =
     div []
         [ h1 [ class "games-section" ] [ text "Games" ]
-        , button [ class "btn btn-success" ] [ text "Display Games List" ]
-        , button [ class "btn btn-danger" ] [ text "Hide Games List" ]
-        , gamesIndex model
+        , button [ class "btn btn-success", onClick DisplayGamesList ] [ text "Display Games List" ]
+        , button [ class "btn btn-danger", onClick HideGamesList ] [ text "Hide Games List" ]
+        , if model.displayGamesList then
+            gamesIndex model
+          else
+            div [] []
         ]
 
 
