@@ -26,6 +26,7 @@ main =
 
 type alias Model =
     { gamesList : List Game
+    , playersList : List Player
     }
 
 
@@ -35,15 +36,27 @@ type alias Game =
     }
 
 
+type alias Player =
+    { displayName : String
+    , id : Int
+    , score : Int
+    , username : String
+    }
+
+
 initialModel : Model
 initialModel =
     { gamesList = []
+    , playersList = []
     }
 
 
 initialCommand : Cmd Msg
 initialCommand =
-    fetchGamesList
+    Cmd.batch
+        [ fetchGamesList
+        , fetchPlayersList
+        ]
 
 
 init : ( Model, Cmd Msg )
@@ -57,6 +70,7 @@ init =
 
 type Msg
     = FetchGamesList (Result Http.Error (List Game))
+    | FetchPlayersList (Result Http.Error (List Player))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,6 +80,14 @@ update msg model =
             case result of
                 Ok games ->
                     ( { model | gamesList = games }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        FetchPlayersList result ->
+            case result of
+                Ok players ->
+                    ( { model | playersList = players }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -91,6 +113,28 @@ decodeGame =
         (Decode.field "description" Decode.string)
 
 
+fetchPlayersList : Cmd Msg
+fetchPlayersList =
+    Http.get "/api/players/" decodePlayersList
+        |> Http.send FetchPlayersList
+
+
+decodePlayersList : Decode.Decoder (List Player)
+decodePlayersList =
+    decodePlayer
+        |> Decode.list
+        |> Decode.at [ "data" ]
+
+
+decodePlayer : Decode.Decoder Player
+decodePlayer =
+    Decode.map4 Player
+        (Decode.field "display_name" Decode.string)
+        (Decode.field "id" Decode.int)
+        (Decode.field "score" Decode.int)
+        (Decode.field "username" Decode.string)
+
+
 
 -- Subscriptions
 
@@ -106,18 +150,38 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    if List.isEmpty model.gamesList then
-        div [] []
-    else
-        div []
-            [ h1 [ class "games-section" ] [ text "Games" ]
-            , gamesIndex model
-            ]
+    div []
+        [ gamesIndex model
+        , playersIndex model
+        ]
 
 
 gamesIndex : Model -> Html msg
 gamesIndex model =
-    div [ class "games-index" ] [ gamesList model.gamesList ]
+    if List.isEmpty model.gamesList then
+        div [] []
+    else
+        div [ class "games-index" ]
+            [ h1 [ class "games-section" ] [ text "Games" ]
+            , gamesList model.gamesList
+            ]
+
+
+playersIndex : Model -> Html msg
+playersIndex model =
+    if List.isEmpty model.playersList then
+        div [] []
+    else
+        div [ class "players-index" ]
+            [ h1 [ class "players-section" ] [ text "Players" ]
+            , playersList model.playersList
+            ]
+
+
+
+-- gamesIndex : Model -> Html msg
+-- gamesIndex model =
+--     div [ class "games-index" ] [ gamesList model.gamesList ]
 
 
 gamesList : List Game -> Html msg
@@ -130,4 +194,17 @@ gamesListItem game =
     li [ class "game-item" ]
         [ strong [] [ text game.title ]
         , p [] [ text game.description ]
+        ]
+
+
+playersList : List Player -> Html msg
+playersList players =
+    ul [ class "players-list" ] (List.map playersListItem players)
+
+
+playersListItem : Player -> Html msg
+playersListItem player =
+    li [ class "player-item" ]
+        [ strong [] [ text player.displayName ]
+        , p [] [ text (toString player.score) ]
         ]
