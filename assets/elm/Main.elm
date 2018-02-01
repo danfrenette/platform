@@ -27,6 +27,7 @@ main =
 type alias Model =
     { gamesList : List Game
     , playersList : List Player
+    , errors : String
     }
 
 
@@ -37,7 +38,7 @@ type alias Game =
 
 
 type alias Player =
-    { displayName : String
+    { displayName : Maybe String
     , id : Int
     , score : Int
     , username : String
@@ -48,6 +49,7 @@ initialModel : Model
 initialModel =
     { gamesList = []
     , playersList = []
+    , errors = ""
     }
 
 
@@ -81,16 +83,16 @@ update msg model =
                 Ok games ->
                     ( { model | gamesList = games }, Cmd.none )
 
-                Err _ ->
-                    ( model, Cmd.none )
+                Err message ->
+                    ( { model | errors = toString message }, Cmd.none )
 
         FetchPlayersList result ->
             case result of
                 Ok players ->
                     ( { model | playersList = players }, Cmd.none )
 
-                Err _ ->
-                    ( model, Cmd.none )
+                Err message ->
+                    ( { model | errors = toString message }, Cmd.none )
 
 
 fetchGamesList : Cmd Msg
@@ -129,7 +131,7 @@ decodePlayersList =
 decodePlayer : Decode.Decoder Player
 decodePlayer =
     Decode.map4 Player
-        (Decode.field "display_name" Decode.string)
+        (Decode.maybe (Decode.field "display_name" Decode.string))
         (Decode.field "id" Decode.int)
         (Decode.field "score" Decode.int)
         (Decode.field "username" Decode.string)
@@ -169,13 +171,19 @@ gamesIndex model =
 
 playersIndex : Model -> Html msg
 playersIndex model =
-    if List.isEmpty model.playersList then
-        div [] []
-    else
-        div [ class "players-index" ]
-            [ h1 [ class "players-section" ] [ text "Players" ]
-            , playersList model.playersList
-            ]
+    let
+        playersSortedByScore =
+            model.playersList
+                |> List.sortBy .score
+                |> List.reverse
+    in
+        if List.isEmpty model.playersList then
+            div [] []
+        else
+            div [ class "players-index" ]
+                [ h1 [ class "players-section" ] [ text "Players" ]
+                , playersList playersSortedByScore
+                ]
 
 
 
@@ -204,7 +212,14 @@ playersList players =
 
 playersListItem : Player -> Html msg
 playersListItem player =
-    li [ class "player-item" ]
-        [ strong [] [ text player.displayName ]
-        , p [] [ text (toString player.score) ]
-        ]
+    let
+        displayName =
+            if player.displayName == Nothing then
+                player.username
+            else
+                Maybe.withDefault "" player.displayName
+    in
+        li [ class "player-item" ]
+            [ strong [] [ text player.displayName ]
+            , p [] [ text (toString player.score) ]
+            ]
