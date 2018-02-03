@@ -32,8 +32,11 @@ type alias Model =
 
 
 type alias Game =
-    { title : String
-    , description : String
+    { description : String
+    , featured : Bool
+    , id : Int
+    , thumbnail : String
+    , title : String
     }
 
 
@@ -110,9 +113,12 @@ decodeGamesList =
 
 decodeGame : Decode.Decoder Game
 decodeGame =
-    Decode.map2 Game
-        (Decode.field "title" Decode.string)
+    Decode.map5 Game
         (Decode.field "description" Decode.string)
+        (Decode.field "featured" Decode.bool)
+        (Decode.field "id" Decode.int)
+        (Decode.field "thumbnail" Decode.string)
+        (Decode.field "title" Decode.string)
 
 
 fetchPlayersList : Cmd Msg
@@ -137,6 +143,13 @@ decodePlayer =
         (Decode.field "username" Decode.string)
 
 
+featuredGame : List Game -> Maybe Game
+featuredGame games =
+    games
+        |> List.filter .featured
+        |> List.head
+
+
 
 -- Subscriptions
 
@@ -153,7 +166,8 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ gamesIndex model
+        [ featured model
+        , gamesIndex model
         , playersIndex model
         ]
 
@@ -186,12 +200,6 @@ playersIndex model =
                 ]
 
 
-
--- gamesIndex : Model -> Html msg
--- gamesIndex model =
---     div [ class "games-index" ] [ gamesList model.gamesList ]
-
-
 gamesList : List Game -> Html msg
 gamesList games =
     ul [ class "games-list" ] (List.map gamesListItem games)
@@ -220,6 +228,27 @@ playersListItem player =
                 Maybe.withDefault "" player.displayName
     in
         li [ class "player-item" ]
-            [ strong [] [ text player.displayName ]
+            [ strong [] [ text displayName ]
             , p [] [ text (toString player.score) ]
             ]
+
+
+featured : Model -> Html msg
+featured model =
+    case featuredGame model.gamesList of
+        Just game ->
+            div [ class "row featured" ]
+                [ div [ class "container" ]
+                    [ div [ class "featured-img" ]
+                        [ img [ class "featured-thumbnail", src game.thumbnail ] [] ]
+                    , div [ class "featured-data" ]
+                        [ h1 [] [ text "Featured" ]
+                        , h2 [] [ text game.title ]
+                        , p [] [ text game.description ]
+                        , button [ class "btn btn-lg btn-primary" ] [ text "Play Now!" ]
+                        ]
+                    ]
+                ]
+
+        Nothing ->
+            div [] []
