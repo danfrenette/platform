@@ -15,6 +15,14 @@
   text-decoration: none;
 }
 
+.nav {
+  margin-top: 6px;
+  max-height: 50px;
+  overflow: hidden;
+}
+
+/* Featured Section */
+
 .featured {
   height: 360px;
   background-color: black;
