@@ -29,6 +29,10 @@
 
   <div class="form-group">
     <%= submit "Submit", class: "btn btn-primary" %>
+    <span>
+      <%= link "Delete Account", to: player_path(@conn, :delete, @player),
+      method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger" %>
+    </span>
     <span><%= link "Back", to: player_path(@conn, :index) %></span>
   </div>
 <%end%>
