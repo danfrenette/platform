@@ -202,14 +202,21 @@ playersIndex model =
 
 gamesList : List Game -> Html msg
 gamesList games =
-    ul [ class "games-list" ] (List.map gamesListItem games)
+    ul [ class "games-list media-list" ] (List.map gamesListItem games)
 
 
 gamesListItem : Game -> Html msg
 gamesListItem game =
-    li [ class "game-item" ]
-        [ strong [] [ text game.title ]
-        , p [] [ text game.description ]
+    a [ href "javascript:void(0)" ]
+        [ li [ class "game-item media" ]
+            [ div [ class "media-left" ]
+                [ img [ class "media-object", src game.thumbnail ] []
+                ]
+            , div [ class "media-body media-middle" ]
+                [ h4 [ class "media-heading" ] [ text game.title ]
+                , p [] [ text game.description ]
+                ]
+            ]
         ]
 
 
