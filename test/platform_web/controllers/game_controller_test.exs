@@ -36,7 +36,8 @@ defmodule PlatformWeb.GameControllerTest do
         "description" => "some description",
         "featured" => true,
         "thumbnail" => "some thumbnail",
-        "title" => "some title"}
+        "title" => "some title",
+        "slug" => "some-slug"}
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -58,7 +59,9 @@ defmodule PlatformWeb.GameControllerTest do
         "description" => "some updated description",
         "featured" => false,
         "thumbnail" => "some updated thumbnail",
-        "title" => "some updated title"}
+        "title" => "some updated title",
+        "slug" => "some-slug"
+      }
     end
 
     test "renders errors when data is invalid", %{conn: conn, game: game} do
