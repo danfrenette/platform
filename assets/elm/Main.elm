@@ -260,7 +260,11 @@ featured model =
                         [ h1 [] [ text "Featured" ]
                         , h2 [] [ text game.title ]
                         , p [] [ text game.description ]
-                        , button [ class "btn btn-lg btn-primary" ] [ text "Play Now!" ]
+                        , button
+                            [ class "btn btn-lg btn-primary"
+                            , href <| "games/" ++ game.slug
+                            ]
+                            [ text "Play Now!" ]
                         ]
                     ]
                 ]
