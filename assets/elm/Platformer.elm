@@ -1,6 +1,8 @@
 module Platformer exposing (..)
 
-import Html exposing (..)
+import Html exposing (Html, div)
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
 
 
 main : Program Never Model Msg
@@ -61,4 +63,20 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [] [ text "Elm Game Base" ]
+    div [ class "asdfasdf" ] [ viewGame ]
+
+
+viewGame : Svg Msg
+viewGame =
+    svg [ version "1.1", width "600", height "400" ] [ viewGameWindow ]
+
+
+viewGameWindow : Svg Msg
+viewGameWindow =
+    rect
+        [ width "600"
+        , height "400"
+        , fill "none"
+        , stroke "black"
+        ]
+        []
